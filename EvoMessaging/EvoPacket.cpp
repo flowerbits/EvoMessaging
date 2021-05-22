@@ -88,7 +88,7 @@ EvoPacket::ProcessResult EvoPacket::ProcessByte(uint8_t byte)
 
 bool EvoPacket::GetMessage(EvoMessage * message)
 {
-	if (currentResult != ProcessResult::MessageComplete) return NULL;
+	if (currentResult != ProcessResult::MessageComplete) return false;
 
 	//Decode and create the message
 	*message = EvoMessage();

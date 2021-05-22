@@ -1,5 +1,4 @@
 #include <stdlib.h>
-#include <io.h>
 #include <string.h>
 
 class Bitstream {
