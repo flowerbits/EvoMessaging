@@ -29,6 +29,7 @@
   <ItemGroup>
     <ClInclude Include="Bitstream.h" />
     <ClInclude Include="BitTools.h" />
+    <ClInclude Include="BitRing.h" />
     <ClInclude Include="EvoMessage.h" />
     <ClInclude Include="EvoPacket.h" />
     <ClInclude Include="EvoTypes.h" />
