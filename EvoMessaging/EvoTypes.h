@@ -23,11 +23,11 @@ typedef enum _messageType {
 
 typedef struct _EvoAddress {
 	uint8_t deviceType;
-	unsigned int deviceIndex;
+	uint32_t deviceIndex;
 
 	_EvoAddress() = default;
 	_EvoAddress(uint8_t * rawData) {
-		unsigned int value = (*rawData << 16 | *(rawData + 1) << 8 | *(rawData + 2));
+		uint32_t value = (*rawData << 16 | *(rawData + 1) << 8 | *(rawData + 2));
 		deviceIndex = value & 0x3ffff;
 		deviceType = (value & 0xFC0000) >> 18;
 	}

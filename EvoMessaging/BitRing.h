@@ -32,6 +32,13 @@ public:
         memset(data, 0, maxSize);
     }
 
+    void Reset()
+    {
+      readPosition = 0;
+      writePosition = 0;
+      memset(data, 0, bufferSize/8);
+    }
+
     void FreeData() {
         free(data);
     }

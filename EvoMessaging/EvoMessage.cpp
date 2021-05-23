@@ -138,6 +138,7 @@ bool EvoMessage::ToEvoString(char* buffer) {
 	for (int i = 0; i < payloadLength; i++) {
 		length += sprintf(buffer + length, "%02X", payload[i]);
 	}
+	length += sprintf(buffer + length, "\r\n");
 
 	return true;
 }
