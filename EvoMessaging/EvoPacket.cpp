@@ -24,6 +24,7 @@ void EvoPacket::SetState(EvoPacket::PacketState newState)
 
 EvoPacket::ProcessResult EvoPacket::ProcessByte_Ready(uint8_t byte)
 {
+#ifdef NO_SPI
 	syncBuffer = (syncBuffer << 8) | byte;
 	if (syncBuffer == EVO_SYNC_WORD)
 	{
@@ -31,6 +32,15 @@ EvoPacket::ProcessResult EvoPacket::ProcessByte_Ready(uint8_t byte)
 		return currentResult = ProcessResult::Synchronized;
 	}
 	return currentResult = ProcessResult::Ok;
+#else
+	if (byte == 0x53)
+	  {
+	    currentState = PacketState::Receiving;
+	    return currentResult = ProcessResult::Synchronized;
+	  }
+	  return currentResult = ProcessResult::Ok;
+#endif
+
 }
 
 void EvoPacket::Reset()
