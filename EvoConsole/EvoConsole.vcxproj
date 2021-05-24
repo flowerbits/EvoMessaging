@@ -86,7 +86,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>..\EvoMessaging</AdditionalIncludeDirectories>
     </ClCompile>
@@ -141,11 +141,17 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ExampleConsole.cpp" />
+    <ClCompile Include="frame.c" />
+    <ClCompile Include="message.c" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EvoMessaging\EvoMessaging.vcxproj">
       <Project>{a19e64b5-9bc0-434c-a02a-2646708e4e53}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="frame.h" />
+    <ClInclude Include="message.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

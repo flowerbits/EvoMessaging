@@ -1,18 +1,12 @@
 #pragma once
 #include <stdint.h>
+#include <stdio.h>
 
-// types for evohome
-#define pTypeEvohome 0x45
-#define sTypeEvohome 0x00 // Controller
+//Data holders for the protocol live here.
+//Take note that the data types generally only have a size of their memory footprint to avoid having to copy data buffers around.
+//This means many of the accessors are functions.
+//They use pointers and rely on the data existing in one spot since most of the time the accessors will be used only a few times for each instance
 
-#define pTypeEvohomeZone 0x46 // Seems easier to define a new type here
-#define sTypeEvohomeZone 0x00 // Actual temp zone
-
-#define pTypeEvohomeWater 0x47 // Seems easier to define a new type here
-#define sTypeEvohomeWater 0x00 // Hot water (Ideally this would just be a zone but for whatever reason evohome treats this differently)
-
-#define pTypeEvohomeRelay 0x44 // Relay
-#define sTypeEvohomeRelay 0x00
 
 typedef enum _messageType {
 	RQ = 0,
@@ -21,89 +15,324 @@ typedef enum _messageType {
 	RP = 3
 } MessageType;
 
-typedef struct _EvoAddress {
-	uint8_t deviceType;
-	uint32_t deviceIndex;
+#pragma pack(push,1)
 
-	_EvoAddress() = default;
-	_EvoAddress(uint8_t * rawData) {
-		uint32_t value = (*rawData << 16 | *(rawData + 1) << 8 | *(rawData + 2));
-		deviceIndex = value & 0x3ffff;
-		deviceType = (value & 0xFC0000) >> 18;
+struct  EvoAddress {
+	uint8_t data[3];
+
+	int deviceType()
+	{
+		return data[0] >> 2;
 	}
-} EvoAddress;
-
-typedef struct _EvoHeaderByte {
-	bool HasParameter0, HasParameter1, HasAddress1, HasAddress2, HasAddress0;
-	MessageType messageType;
-
-	_EvoHeaderByte() = default;
-	_EvoHeaderByte(uint8_t byte) {
-		messageType = (MessageType)((byte & 0x30) >> 4);
-
-		unsigned int addr = (byte & 0xC) >> 2;
-		HasAddress0 = (addr != 1);
-		HasAddress1 = (addr == 0 || addr == 3);
-		HasAddress2 = (addr != 3);
-
-		HasParameter0 = (byte & 2);
-		HasParameter1 = (byte & 1);
+	unsigned int deviceAddress()
+	{
+		return (data[0] << 16 | data[1] << 8 | data[2]) & 0x03FFFF;
 	}
-} EvoHeaderByte;
+};
+
+struct EvoHeaderByte {
+	uint8_t data;
+
+	bool HasParameter0() {
+		return (data & 2);
+	}
+	
+	bool HasParameter1() {
+		return (data & 1);
+	}
+
+	bool HasAddress0() {
+		return ((data & 0xC) >> 2) != 1;
+	}
+
+	bool  HasAddress1() {
+		return ((data & 0xC) >> 2) == 0 || ((data & 0xC) >> 2) == 3;
+	}
+
+	bool HasAddress2() {
+		return ((data & 0xC) >> 2) !=3;
+	}
+
+	MessageType Type() {
+		return (MessageType)((data & 0x30) >> 4);
+	}
+};
 
 
-typedef struct _tEVOHOME1
+struct BindFeature {
+	uint8_t zoneData;
+	uint8_t opCodeData[2];
+	uint8_t addressData[3];
+
+	inline EvoAddress* Address()
+	{
+		return (EvoAddress*)addressData;
+	}
+
+	uint16_t OpCode()
+	{
+		return opCodeData[0] << 8 | opCodeData[1];
+	}
+
+	uint8_t Zone()
+	{
+		return zoneData;
+	}
+};
+
+
+struct EvoTemperature 
 {
-	uint8_t len;
-	uint8_t type;
-	uint8_t subtype;
-	uint8_t id1;
-	uint8_t id2;
-	uint8_t id3;
-	uint8_t status;
-	uint8_t mode;
-	uint16_t year;
-	uint8_t month;
-	uint8_t day;
-	uint8_t hrs;
-	uint8_t mins;
-	uint8_t action;
+	uint8_t data[2];
 
-} EVOHOME1;
+	inline uint16_t Value() 
+	{
+		return data[0] << 8 | data[1];
+	}
 
-typedef struct _tEVOHOME2
-{
-	uint8_t len;
-	uint8_t type;
-	uint8_t subtype;
-	uint8_t id1;
-	uint8_t id2;
-	uint8_t id3;
-	uint8_t zone;
-	uint8_t updatetype;
-	int16_t temperature;
-	uint8_t mode;
-	uint8_t controllermode;
-	uint16_t year;
-	uint8_t month;
-	uint8_t day;
-	uint8_t hrs;
-	uint8_t mins;
-	uint8_t battery_level;
+	inline bool IsValid()
+	{
+		return Value() != 0x31FF && Value() != 0x7EFF && Value() != 0x7FFF;
+	}
 
-} EVOHOME2;
+	/// <summary>
+	/// Returns the temperature in celcius, thousands of a degree. 
+	/// </summary>
+	int Celcius()
+	{
+		int result = Value();
+		if (result >= 0x8000)
+			result -= 0x10000;
+		return result;
+	}
+};
 
-typedef struct _tEVOHOME3
-{
-	uint8_t len;
-	uint8_t type;
-	uint8_t subtype;
-	uint8_t id1;
-	uint8_t id2;
-	uint8_t id3;
-	uint8_t devno;
-	uint8_t demand;
-	uint8_t updatetype;
-	uint8_t battery_level;
+struct EvoPercentage {
+	uint8_t data;
 
-} EVOHOME3;
+	double Percentage()
+	{
+		return data / 0xC8;
+	}
+
+	void SetPercentage(double value)
+	{
+		if (value > 100)
+			value = 100;
+		data =(uint8_t)(0xC8 * value);
+	}
+};
+
+struct ZoneDemand {
+	uint8_t data[2];
+
+	inline uint8_t ZoneIndex()
+	{
+		return data[0];
+	}
+
+	inline EvoPercentage* Demand() {
+		return (EvoPercentage*)(data + 1);
+	}
+};
+
+struct ZoneTemperature {
+	uint8_t data[3];
+
+	inline uint8_t ZoneIndex()
+	{
+		return data[0];
+	}
+
+	inline EvoTemperature* Temperature() {
+		return (EvoTemperature*)(data + 1);
+	}
+};
+
+struct BatteryStatus {
+	uint8_t data[3];
+
+	inline uint8_t ZoneIndex()
+	{
+		return data[0];
+	}
+
+	inline EvoPercentage* Level() {
+		return (EvoPercentage*)(data + 1);
+	}
+
+	inline uint8_t BatteryOk() {
+		return data[2];
+	}
+};
+
+struct BoilerParameters {
+	uint8_t data[5];
+
+	inline uint8_t DomainId() {
+		return data[0];
+	}
+
+	inline double CyclesPerHour() {
+		return data[1] / 4.0;
+	}
+
+	inline double MinOnTime() {
+		return data[2] / 4.0;
+	}
+
+	inline double MinOffTime() {
+		return data[3] / 4.0;
+	}
+
+	inline uint8_t Unknown() {
+		return data[4];
+	}
+
+	void SetCyclesPerHour(double value) {
+		data[1] = (uint8_t)(value * 4);
+	}
+
+	void SetMinOnTime(double value) {
+		data[2] = (uint8_t)(value * 4);
+	}
+
+	void SetMinOffTime(double value) {
+		data[3] = (uint8_t)(value * 4);
+	}
+
+	void SetUnknown(uint8_t value) {
+		data[4] = value;
+	}
+};
+
+struct BandwidthData {
+	uint8_t data[3];
+
+	uint8_t Unknown() {
+		return data[2];
+	}
+
+	double Bandwidth() {
+		return (data[0] << 8 | data[1]) / 100.0;
+	}
+
+	void SetBandwidth(double value) {
+		uint16_t bw = 0;
+		bw = value * 100;
+		data[1] = bw & 0xFF;
+		data[0] = (bw >> 8) & 0xFF;
+	}
+
+	void SetUnkown(uint8_t value) {
+		data[2] = value;
+	}
+};
+
+struct TpiParameters {
+	uint8_t* data;
+	uint8_t dataLength;
+
+	TpiParameters() = default;
+
+	TpiParameters(uint8_t * d, uint8_t length)
+	{
+		data = d;
+		dataLength = length;
+	}
+	inline bool HasBandwidth()
+	{
+		return dataLength >= 8;
+	}
+
+	BoilerParameters* GetBoilerParameters() {
+		return (BoilerParameters*)data;
+	}
+
+	BandwidthData* GetBandwidthData() {
+		if (!HasBandwidth())
+			return 0;
+
+		return (BandwidthData*)(data + 5);
+	}
+};
+
+struct ActuatorCycle {
+	uint8_t data[7];
+
+	inline uint8_t Padding() {
+		return data[0];
+	}
+
+	inline uint16_t CycleCountdown() {
+		return data[1] << 8 | data[2];
+	}
+
+	inline uint16_t ActuatorCountdown() {
+		return data[3] << 8 | data[4];
+	}
+
+	inline EvoPercentage* ModulationLevel() {
+		return (EvoPercentage*)(data + 5);
+	}
+
+	inline uint8_t Flags() {
+		return data[6];
+	}
+};
+
+
+struct ActuatorState {
+	uint8_t data[3];
+
+	inline uint8_t SetPadding(uint8_t value)
+	{
+		data[0] = value;
+	}
+	inline uint8_t SetFlags(uint8_t value)
+	{
+		data[2] = value;
+	}
+
+	inline uint8_t Padding() {
+		return data[0];
+	}
+
+	inline uint8_t Flags() {
+		return data[2];
+	}
+
+	inline EvoPercentage* ModulationLevel() {
+		return (EvoPercentage*)(data + 1);
+	}
+
+	inline bool IsEnabled() {
+		return ModulationLevel()->Percentage() > 0;
+	}
+};
+
+template <typename T>
+struct EvoArray {
+	uint8_t* data;
+	uint8_t dataLength;
+
+	EvoArray() = default;
+
+	EvoArray(uint8_t* d, uint8_t length)
+	{
+		data = d;
+		dataLength = length;
+	}
+	inline T* Values()
+	{
+		return (T*)data;
+	}
+
+	inline uint8_t ValueCount()
+	{
+		return dataLength / sizeof(T);
+	}
+
+};
+
+#pragma pack(pop)

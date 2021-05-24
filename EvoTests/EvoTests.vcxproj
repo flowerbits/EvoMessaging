@@ -44,6 +44,11 @@
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Parser1100.cpp" />
+    <ClCompile Include="Parser15C9.cpp" />
+    <ClCompile Include="Parser30C9.cpp" />
+    <ClCompile Include="Parser3EF0.cpp" />
+    <ClCompile Include="Parser3EF1.cpp" />
     <ClCompile Include="TestBitRing.cpp" />
     <ClCompile Include="TestBitstream.cpp" />
     <ClCompile Include="pch.cpp">

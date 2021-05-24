@@ -43,30 +43,30 @@ bool EvoMessage::LoadFromManchester(const uint8_t* encodedData, uint8_t encodedL
 /// </summary>
 /// <returns>true if the data is a valid message</returns>
 bool EvoMessage::ParseData() {
-	header = EvoHeaderByte(rawData[0]);
+	header = (EvoHeaderByte*)(rawData);
 
 	unsigned int position = 1;
 
-	if (header.HasAddress0) {
-		address0 = EvoAddress(rawData + position);
+	if (header->HasAddress0()) {
+		address0 = (EvoAddress*)(rawData + position);
 		position += 3;
 	}
 
-	if (header.HasAddress1) {
-		address1 = EvoAddress(rawData + position);
+	if (header->HasAddress1()) {
+		address1 = (EvoAddress*)(rawData + position);
 		position += 3;
 	}
 		
-	if (header.HasAddress2) {
-		address2 = EvoAddress(rawData + position);
+	if (header->HasAddress2()) {
+		address2 = (EvoAddress*)(rawData + position);
 		position += 3;
 	}
 
-	if (header.HasParameter0) {
+	if (header->HasParameter0()) {
 		param0 = rawData[position];
 		position++;
 	}
-	if (header.HasParameter1){
+	if (header->HasParameter1()){
 		param1 = rawData[position];
 		position++;
 	}
@@ -105,7 +105,7 @@ int EvoMessage::PrintAddress(EvoAddress* address, bool isUsed, char* buffer) {
 	if (!isUsed)
 		return sprintf(buffer, "--:------ ");
 
-	return sprintf(buffer, "%02u:%06u ", address->deviceType, address->deviceIndex);
+	return sprintf(buffer, "%02u:%06u ", address->deviceType(), address->deviceAddress());
 }
 
 /// <summary>
@@ -114,25 +114,25 @@ int EvoMessage::PrintAddress(EvoAddress* address, bool isUsed, char* buffer) {
 bool EvoMessage::ToEvoString(char* buffer) {
 	const char* headerType;
 	int length = 0;
-	if (header.messageType == MessageType::I)
+	if (header->Type() == MessageType::I)
 		headerType = " I";
-	else if (header.messageType == MessageType::RP)
+	else if (header->Type() == MessageType::RP)
 		headerType = "RP";
-	else if (header.messageType == MessageType::W)
+	else if (header->Type() == MessageType::W)
 		headerType = " W";
-	else if (header.messageType == MessageType::RQ)
+	else if (header->Type() == MessageType::RQ)
 		headerType = "RQ";
 	else headerType = "XX";
 
 	length = sprintf(buffer, "%03X %s ", rssi, headerType);
 
-	if (header.HasParameter1)
+	if (header->HasParameter1())
 		length += sprintf(buffer + length, "%03X ", param1);
 	else length += sprintf(buffer + length, "--- ");
 
-	length += PrintAddress(&address0, header.HasAddress0, buffer+length);
-	length += PrintAddress(&address1, header.HasAddress1, buffer+length);
-	length += PrintAddress(&address2, header.HasAddress2, buffer+length);
+	length += PrintAddress(address0, header->HasAddress0(), buffer+length);
+	length += PrintAddress(address1, header->HasAddress1(), buffer+length);
+	length += PrintAddress(address2, header->HasAddress2(), buffer+length);
 	length += sprintf(buffer + length, "%04X %03X ", opCode, payloadLength);
 	
 	for (int i = 0; i < payloadLength; i++) {

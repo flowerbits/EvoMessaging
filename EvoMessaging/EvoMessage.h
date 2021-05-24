@@ -14,9 +14,9 @@ public:
 	/// </summary>
 	uint8_t rawData[MAX_MESSAGE_SIZE];
 
-	EvoHeaderByte header;
+	EvoHeaderByte *header;
 	uint8_t param0, param1, payloadLength, rawLength, checksum;
-	EvoAddress address0, address1, address2;
+	EvoAddress *address0, *address1, *address2;
 	uint16_t opCode;
 	uint16_t rssi;
 	uint8_t* payload;
