@@ -59,7 +59,8 @@ struct EvoHeaderByte {
 };
 
 
-struct BindFeature {
+struct BindFeature
+{
 	uint8_t zoneData;
 	uint8_t opCodeData[2];
 	uint8_t addressData[3];
@@ -107,7 +108,8 @@ struct EvoTemperature
 	}
 };
 
-struct EvoPercentage {
+struct EvoPercentage 
+{
 	uint8_t data;
 
 	double Percentage()
@@ -121,9 +123,15 @@ struct EvoPercentage {
 			value = 100;
 		data =(uint8_t)(0xC8 * value);
 	}
+
+	bool HasValue() 
+	{
+		return data <= 0xC8;
+	}
 };
 
-struct ZoneDemand {
+struct ZoneDemand
+{
 	uint8_t data[2];
 
 	inline uint8_t ZoneIndex()
@@ -131,12 +139,14 @@ struct ZoneDemand {
 		return data[0];
 	}
 
-	inline EvoPercentage* Demand() {
+	inline EvoPercentage* Demand()
+	{
 		return (EvoPercentage*)(data + 1);
 	}
 };
 
-struct ZoneTemperature {
+struct ZoneTemperature
+{
 	uint8_t data[3];
 
 	inline uint8_t ZoneIndex()
@@ -144,12 +154,14 @@ struct ZoneTemperature {
 		return data[0];
 	}
 
-	inline EvoTemperature* Temperature() {
+	inline EvoTemperature* Temperature()
+	{
 		return (EvoTemperature*)(data + 1);
 	}
 };
 
-struct BatteryStatus {
+struct BatteryStatus
+{
 	uint8_t data[3];
 
 	inline uint8_t ZoneIndex()
@@ -157,74 +169,91 @@ struct BatteryStatus {
 		return data[0];
 	}
 
-	inline EvoPercentage* Level() {
+	inline EvoPercentage* Level()
+	{
 		return (EvoPercentage*)(data + 1);
 	}
 
-	inline uint8_t BatteryOk() {
+	inline uint8_t BatteryOk()
+	{
 		return data[2];
 	}
 };
 
-struct BoilerParameters {
+struct BoilerParameters 
+{
 	uint8_t data[5];
 
-	inline uint8_t DomainId() {
+	inline uint8_t DomainId()
+	{
 		return data[0];
 	}
 
-	inline double CyclesPerHour() {
+	inline double CyclesPerHour()
+	{
 		return data[1] / 4.0;
 	}
 
-	inline double MinOnTime() {
+	inline double MinOnTime()
+	{
 		return data[2] / 4.0;
 	}
 
-	inline double MinOffTime() {
+	inline double MinOffTime()
+	{
 		return data[3] / 4.0;
 	}
 
-	inline uint8_t Unknown() {
+	inline uint8_t Unknown()
+	{
 		return data[4];
 	}
 
-	void SetCyclesPerHour(double value) {
+	void SetCyclesPerHour(double value)
+	{
 		data[1] = (uint8_t)(value * 4);
 	}
 
-	void SetMinOnTime(double value) {
+	void SetMinOnTime(double value)
+	{
 		data[2] = (uint8_t)(value * 4);
 	}
 
-	void SetMinOffTime(double value) {
+	void SetMinOffTime(double value)
+	{
 		data[3] = (uint8_t)(value * 4);
 	}
 
-	void SetUnknown(uint8_t value) {
+	void SetUnknown(uint8_t value) 
+	{
 		data[4] = value;
 	}
 };
 
-struct BandwidthData {
+struct BandwidthData
+{
 	uint8_t data[3];
 
-	uint8_t Unknown() {
+	uint8_t Unknown() 
+	{
 		return data[2];
 	}
 
-	double Bandwidth() {
+	double Bandwidth() 
+	{
 		return (data[0] << 8 | data[1]) / 100.0;
 	}
 
-	void SetBandwidth(double value) {
+	void SetBandwidth(double value) 
+	{
 		uint16_t bw = 0;
 		bw = value * 100;
 		data[1] = bw & 0xFF;
 		data[0] = (bw >> 8) & 0xFF;
 	}
 
-	void SetUnkown(uint8_t value) {
+	void SetUnkown(uint8_t value) 
+	{
 		data[2] = value;
 	}
 };
@@ -245,34 +274,64 @@ struct TpiParameters {
 		return dataLength >= 8;
 	}
 
-	BoilerParameters* GetBoilerParameters() {
+	BoilerParameters* GetBoilerParameters() 
+	{
 		return (BoilerParameters*)data;
 	}
 
-	BandwidthData* GetBandwidthData() {
+	BandwidthData* GetBandwidthData() 
+	{
 		if (!HasBandwidth())
 			return 0;
 
 		return (BandwidthData*)(data + 5);
 	}
 };
+struct ActuatorCycleRequest 
+{
+	uint8_t data[2];
 
-struct ActuatorCycle {
-	uint8_t data[7];
-
-	inline uint8_t Padding() {
+	inline uint8_t Padding() 
+	{
 		return data[0];
 	}
 
-	inline uint16_t CycleCountdown() {
+	inline uint8_t ZoneIndex()
+	{
+		return data[1];
+	}
+
+	inline void SetPadding(uint8_t value)
+	{
+		data[0] = value;
+	}
+
+	inline void SetZoneIndex(uint8_t value) 
+	{
+		data[1] = value;
+	}
+};
+struct ActuatorCycleResponse
+{
+	uint8_t data[7];
+
+	inline uint8_t Padding() 
+	{
+		return data[0];
+	}
+
+	inline uint16_t CycleCountdown() 
+	{
 		return data[1] << 8 | data[2];
 	}
 
-	inline uint16_t ActuatorCountdown() {
+	inline uint16_t ActuatorCountdown() 
+	{
 		return data[3] << 8 | data[4];
 	}
 
-	inline EvoPercentage* ModulationLevel() {
+	inline EvoPercentage* ModulationLevel() 
+	{
 		return (EvoPercentage*)(data + 5);
 	}
 
@@ -302,11 +361,13 @@ struct ActuatorState {
 		return data[2];
 	}
 
-	inline EvoPercentage* ModulationLevel() {
+	inline EvoPercentage* ModulationLevel()
+	{
 		return (EvoPercentage*)(data + 1);
 	}
 
-	inline bool IsEnabled() {
+	inline bool IsEnabled()
+	{
 		return ModulationLevel()->Percentage() > 0;
 	}
 };

@@ -44,6 +44,8 @@
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Parser0008.cpp" />
+    <ClCompile Include="Parser1060.cpp" />
     <ClCompile Include="Parser1100.cpp" />
     <ClCompile Include="Parser15C9.cpp" />
     <ClCompile Include="Parser30C9.cpp" />
