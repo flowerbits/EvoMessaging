@@ -24,12 +24,16 @@ public:
     /// </summary>
     /// <param name="maxSize">Number of bytes for the buffer</param>
     void Open(int maxSize) {
-        bufferSize = maxSize * 8;
+        OpenBytes((uint8_t*)malloc(maxSize), maxSize);
+    }
 
+    void OpenBytes(uint8_t* buffer, int maxSize)
+    {
+        bufferSize = maxSize * 8;
         readPosition = 0;
         writePosition = 0;
-        data = (uint8_t*)malloc(maxSize);
-        memset(data, 0, maxSize);
+        data = buffer;
+        memset(buffer, 0, maxSize);
     }
 
     void Reset()

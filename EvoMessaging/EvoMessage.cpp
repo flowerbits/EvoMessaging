@@ -124,6 +124,7 @@ void EvoMessage::GenerateChecksum() {
 	}
 
 	rawData[packetLength] = 0x100 - sum & 0xFF;
+	rawLength = packetLength + 1; //It is 0 based and includes Checksum
 }
 
 int EvoMessage::PrintAddress(EvoAddress* address, bool isUsed, char* buffer) {

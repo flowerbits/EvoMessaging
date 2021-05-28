@@ -19,7 +19,6 @@ TEST(BitRingTest, EightBitRing) {
 
 
 TEST(BitRingTest, IncrementalBitRing) {
-    uint8_t* output;
     int bitCount = 0;
     BitRing br;
 
@@ -36,7 +35,6 @@ TEST(BitRingTest, IncrementalBitRing) {
 }
 
 TEST(BitRingTest, SixBitRing) {
-    uint8_t* output;
     int bitCount = 0;
     BitRing br;
 
@@ -54,7 +52,6 @@ TEST(BitRingTest, SixBitRing) {
 
 
 TEST(BitRingTest, EightBitWrap) {
-    uint8_t* output;
     int bitCount = 0;
     BitRing br;
 
@@ -74,7 +71,6 @@ TEST(BitRingTest, EightBitWrap) {
 }
 
 TEST(BitRingTest, SixBitWrap) {
-    uint8_t* output;
     int bitCount = 0;
     BitRing br;
 
@@ -97,7 +93,6 @@ TEST(BitRingTest, SixBitWrap) {
 
 
 TEST(BitRingTest, SixBitFives) {
-    uint8_t* output;
     int bitCount = 0;
     BitRing br;
 

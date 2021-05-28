@@ -62,6 +62,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="TestFraming.cpp" />
+    <ClCompile Include="TestMessage.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

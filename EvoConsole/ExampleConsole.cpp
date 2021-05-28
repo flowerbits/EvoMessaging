@@ -190,35 +190,10 @@ void shittyLoop()
     }
 }
 
-#pragma warning (disable : 4146)
-
-void printTemp(uint16_t temp) {
-    int result = temp;
-    if (temp >= 0x8000)
-    {
-        result = temp - 0x10000;
-    }
-
-    printf("%04X becomes %d\n",temp, result);
-}
 int main() 
 {
-    uint8_t data[] = { 0x07, 0xDC, 0XFD, 0xDC, 0x08, 0xCe };
-
-    uint16_t temp1 = (data[0] << 8) | data[1] ;
-    uint16_t temp2 = (data[2] << 8)  | data[3];
-    uint16_t temp3 = (data[4] << 8)| data[5];
-
-    printTemp(temp1);
-    printTemp(temp2);
-    printTemp(temp3);
-
-    uint16_t tt1 = -uintmax_t(temp1);
-    uint16_t tt2 = -uintmax_t(temp2);
-
-    printf("%04X %04X\n", tt1, tt2);
-    //shittyLoop();
-    //TestPacketSample();
-    //TestByteFraming();
+    shittyLoop();
+    TestPacketSample();
+    TestByteFraming();
     
 }
