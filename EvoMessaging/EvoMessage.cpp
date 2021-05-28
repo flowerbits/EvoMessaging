@@ -5,6 +5,15 @@
 
 
 /// <summary>
+/// This is used to build a message. Given a properly formatted header and opcode we can deduce the pointers so that the data can be filled in.
+/// </summary>
+EvoMessage::EvoMessage(EvoHeaderByte fromHeader)
+{
+	rawData[0] = fromHeader.data;
+	LoadPositions();
+}
+
+/// <summary>
 /// Loads a message from already manchester decoded bytes.
 /// </summary>
 /// <param name="data">The raw data to load the message from</param>
@@ -37,12 +46,7 @@ bool EvoMessage::LoadFromManchester(const uint8_t* encodedData, uint8_t encodedL
 	return ParseData();
 }
 
-
-/// <summary>
-/// Parses the raw data into appropriate fields 
-/// </summary>
-/// <returns>true if the data is a valid message</returns>
-bool EvoMessage::ParseData() {
+void EvoMessage::LoadPositions() {
 	header = (EvoHeaderByte*)(rawData);
 
 	unsigned int position = 1;
@@ -56,49 +60,70 @@ bool EvoMessage::ParseData() {
 		address1 = (EvoAddress*)(rawData + position);
 		position += 3;
 	}
-		
+
 	if (header->HasAddress2()) {
 		address2 = (EvoAddress*)(rawData + position);
 		position += 3;
 	}
 
 	if (header->HasParameter0()) {
-		param0 = rawData[position];
+		param0 = (rawData + position);
 		position++;
 	}
-	if (header->HasParameter1()){
-		param1 = rawData[position];
+	if (header->HasParameter1()) {
+		param1 = (rawData + position);
 		position++;
 	}
 
-	opCode = rawData[position] << 8 | rawData[position+1];
+	opCode = (OperationCode*)(rawData + position);
 	position += 2;
-	payloadLength = rawData[position++];
+	payloadLength = (rawData + position);
+	position++;
+	payload = rawData + position;
 
+}
+/// <summary>
+/// Parses the raw data into appropriate fields 
+/// </summary>
+/// <returns>true if the data is a valid message</returns>
+bool EvoMessage::ParseData() {
+	LoadPositions();
 	//This makes sure we don't exceed our buffer
-	if (payloadLength + position > rawLength)
+	if (payload - rawData + *payloadLength > rawLength)
 		return false; 
 
-	payload = rawData+position;
-	checksum = rawData[position + payloadLength];
+	checksum = payload + *payloadLength;
 
-	return ChecksumValid(position+payloadLength+1);
+	return ChecksumValid();
 }
 
 /// <summary>
 /// Adds all bytes from the raw data to see if the checksum is valid according to a checksum generated with:
 /// 0x100 - ((sum of other bytes) & 0xFF)
 /// </summary>
-/// <param name="packetLength">Length of the packet data from header through checksum</param>
 /// <returns>true if the sum is 0</returns>
-bool EvoMessage::ChecksumValid(unsigned int packetLength) {
+bool EvoMessage::ChecksumValid() {
 	uint8_t sum = 0;
-	for (int i = 0; i <= packetLength; i++)
+
+	int packetLength = payload - rawData + *payloadLength +1 ;
+	for (int i = 0; i < packetLength; i++)
 	{
 		sum += rawData[i];
 	}
 	
 	return sum == 0;
+}
+
+void EvoMessage::GenerateChecksum() {
+	uint8_t sum = 0;
+	int packetLength = payload - rawData + *payloadLength;
+
+	for (int i = 0; i < packetLength; i++)
+	{
+		sum += rawData[i];
+	}
+
+	rawData[packetLength] = 0x100 - sum & 0xFF;
 }
 
 int EvoMessage::PrintAddress(EvoAddress* address, bool isUsed, char* buffer) {
@@ -127,7 +152,7 @@ bool EvoMessage::ToEvoString(char* buffer) {
 	length = sprintf(buffer, "%03X %s ", rssi, headerType);
 
 	if (header->HasParameter1())
-		length += sprintf(buffer + length, "%03X ", param1);
+		length += sprintf(buffer + length, "%03X ", *param1);
 	else length += sprintf(buffer + length, "--- ");
 
 	length += PrintAddress(&address0, header.HasAddress0, buffer+length);
@@ -135,7 +160,7 @@ bool EvoMessage::ToEvoString(char* buffer) {
 	length += PrintAddress(&address2, header.HasAddress2, buffer+length);
 	length += sprintf(buffer + length, "%04X %03d ", opCode, payloadLength);
 	
-	for (int i = 0; i < payloadLength; i++) {
+	for (int i = 0; i < *payloadLength; i++) {
 		length += sprintf(buffer + length, "%02X", payload[i]);
 	}
 	length += sprintf(buffer + length, "\r\n");

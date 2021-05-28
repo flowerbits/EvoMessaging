@@ -14,6 +14,7 @@ public:
 		Synchronized = 1,
 		HeaderFound = 2,
 		MessageComplete = 3,
+		Error = 0x8000,
 		CollisionError = 0x8001,
 		ManchesterError = 0x8002,
 		SyncError = 0x8003

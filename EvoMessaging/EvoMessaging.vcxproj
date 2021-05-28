@@ -34,12 +34,14 @@
     <ClInclude Include="EvoPacket.h" />
     <ClInclude Include="EvoTypes.h" />
     <ClInclude Include="Manchester.h" />
+    <ClInclude Include="MessageFactory.h" />
     <ClInclude Include="MessagePrinter.h" />
     <ClInclude Include="SpiFramer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="EvoMessage.cpp" />
     <ClCompile Include="EvoPacket.cpp" />
+    <ClCompile Include="MessageFactory.cpp" />
     <ClCompile Include="MessagePrinter.cpp" />
     <ClCompile Include="SpiFramer.cpp" />
   </ItemGroup>

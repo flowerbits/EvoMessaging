@@ -12,7 +12,7 @@ void MessagePrinter::PrintTemperature(ostream& stream, EvoTemperature * temperat
 }
 
 void MessagePrinter::PrintBindFeature(ostream& stream, BindFeature* feature) {
-	stream << "['" << uppercase <<  dec << std::setw(2) << setfill('0') << (unsigned int)feature->Zone() << "','" << setw(4) << hex << feature->OpCode() << "','";
+	stream << "['" << uppercase <<  dec << std::setw(2) << setfill('0') << (unsigned int)feature->Zone() << "','" << setw(4) << hex << feature->OpCode()->GetValue() << "','";
 	PrintAddress(stream, feature->Address());
 	stream << "']";
 }
