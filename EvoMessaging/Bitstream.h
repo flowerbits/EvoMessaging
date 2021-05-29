@@ -76,6 +76,11 @@ public:
         return dat;
     }
 
+    void Reset() {
+        position = 0;
+        memset(data, 0, size);
+    }
+
     int GetPosition()
     {
         return position;

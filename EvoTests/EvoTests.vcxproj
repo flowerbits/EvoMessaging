@@ -42,6 +42,7 @@
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
     <ClInclude Include="pch.h" />
+    <ClInclude Include="TestHelper.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Parser0008.cpp" />
@@ -62,6 +63,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="TestFraming.cpp" />
+    <ClCompile Include="TestHelper.cpp" />
     <ClCompile Include="TestMessage.cpp" />
   </ItemGroup>
   <ItemGroup>

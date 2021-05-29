@@ -19,7 +19,7 @@ void MessagePrinter::PrintBindFeature(ostream& stream, BindFeature* feature) {
 
 void MessagePrinter::PrintAddress(ostream& stream, EvoAddress* address)
 {
-	stream << dec << setw(2) << setfill('0') << address->deviceType() << ":" << setw(6) << address->deviceAddress();
+	stream << dec << setw(2) << setfill('0') << (int)address->deviceType() << ":" << setw(6) << address->deviceAddress();
 }
 
 void MessagePrinter::PrintZoneTemperature(ostream& stream, ZoneTemperature* temperature)

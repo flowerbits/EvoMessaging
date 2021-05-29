@@ -101,11 +101,23 @@ typedef enum _messageType {
 struct  EvoAddress {
 	uint8_t data[3];
 
-	int deviceType()
+	uint8_t deviceType()
 	{
 		return data[0] >> 2;
 	}
-	unsigned int deviceAddress()
+	void SetValues(uint8_t deviceType, uint32_t deviceAddress)
+	{
+		data[0] = 0;
+		data[1] = 0;
+		data[2] = 0;
+
+		data[0] = deviceType << 2 & 0xFC;
+		data[0] |= deviceAddress >> 16 & 0x3;
+		data[1] = deviceAddress >> 8 & 0xFF;
+		data[2] = deviceAddress & 0xFF;
+	}
+
+	uint32_t deviceAddress()
 	{
 		return (data[0] << 16 | data[1] << 8 | data[2]) & 0x03FFFF;
 	}
@@ -157,6 +169,8 @@ struct EvoHeaderByte {
 			newFlag = 3;
 		else //a2 by itself?
 			newFlag = 1;
+
+		data |= newFlag << 2 & 0xC;
 	}
 };
 

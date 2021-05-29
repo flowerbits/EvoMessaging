@@ -5,7 +5,7 @@
 #include "Manchester.h"
 
 uint8_t prefix[] = { 0x55, 0x55, 0x55, 0x55, 0x55, 0xff, 0x00, 0x33, 0x55, 0x53 };
-uint8_t suffix[] = { 0x35, 0x55, 0x55, 0x55, 0x55, 0x55};
+uint8_t suffix[] = { 0x35, 0x55, 0x55};
 
 //TODO: Make sure we don't exceed the output buffers in all functions in this class.
 
@@ -27,12 +27,12 @@ bool SpiFramer::FrameMessageForTransmission(EvoMessage * message, BitRing* outpu
     for (int i = 0; i < message->rawLength; i++)
     {
         temp = 0;
-        mancByte = manchester_encode(message->rawData[i]);
+        mancByte = manchester_encode(message->rawData[i] >> 4);
         temp = (reverseBits(mancByte) << 1) | 0x01;
         output->Write(10, temp);
 
         temp = 0;
-        mancByte = manchester_encode(message->rawData[i] >> 4);
+        mancByte = manchester_encode(message->rawData[i]);
         temp = (reverseBits(mancByte) << 1) | 0x01;
         output->Write(10, temp);
     }
@@ -76,6 +76,8 @@ bool SpiFramer::UnframeData(uint8_t* input, unsigned int inputLength, uint8_t* o
     Bitstream bs, dbs;
     bs.OpenBytes(input, inputLength);
     dbs.OpenBytes(output, outputLength);
+    dbs.Reset();
+    
     uint16_t temp;
 
     for (int i = 0; i < inputLength; i++)
