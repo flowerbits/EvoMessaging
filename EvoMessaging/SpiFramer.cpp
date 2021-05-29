@@ -2,42 +2,51 @@
 #include "BitTools.h"
 #include "BitStream.h"
 #include "BitRing.h"
+#include "Manchester.h"
 
 uint8_t prefix[] = { 0x55, 0x55, 0x55, 0x55, 0x55, 0xff, 0x00, 0x33, 0x55, 0x53 };
 uint8_t suffix[] = { 0x35, 0x55, 0x55, 0x55, 0x55, 0x55};
 
 //TODO: Make sure we don't exceed the output buffers in all functions in this class.
 
-bool SpiFramer::FrameMessageForTransmission(EvoMessage * message, BitRing output)
+bool SpiFramer::FrameMessageForTransmission(EvoMessage * message, BitRing* output)
 {
     //if ( < (1.25 * rawMessageLength )+ sizeof(prefix) + sizeof(suffix))
     //    return false; //Not enough space to frame into
 
     uint16_t temp;
+    uint8_t mancByte;
 
     for (int i = 0; i < sizeof(prefix); i++)
     {
         temp = 0;
         temp = (reverseBits(prefix[i]) << 1) | 0x01;
-        output.Write(10, temp);
+        output->Write(10, temp);
     }
 
     for (int i = 0; i < message->rawLength; i++)
     {
         temp = 0;
-        temp = (reverseBits(message->rawData[i]) << 1) | 0x01;
-        output.Write(10, temp);
+        mancByte = manchester_encode(message->rawData[i]);
+        temp = (reverseBits(mancByte) << 1) | 0x01;
+        output->Write(10, temp);
+
+        temp = 0;
+        mancByte = manchester_encode(message->rawData[i] >> 4);
+        temp = (reverseBits(mancByte) << 1) | 0x01;
+        output->Write(10, temp);
     }
 
     for (int i = 0; i < sizeof(suffix); i++)
     {
         temp = 0;
         temp = (reverseBits(suffix[i]) << 1) | 0x01;
-        output.Write(10, temp);
+        output->Write(10, temp);
     }
+
     return true;
-    
 }
+
 /// <summary>
 /// Frames the data for transmission on the SPI bus. Takes each byte of data and reverses bit order, then adds the start and stop bit.
 /// </summary>
