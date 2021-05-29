@@ -35,6 +35,7 @@ bool SpiFramer::FrameMessageForTransmission(EvoMessage * message, BitRing output
         temp = (reverseBits(suffix[i]) << 1) | 0x01;
         output.Write(10, temp);
     }
+    return true;
     
 }
 /// <summary>

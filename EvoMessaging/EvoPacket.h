@@ -9,7 +9,7 @@ static const uint32_t EVO_SYNC_WORD = 0x00335553;
 class EvoPacket
 {
 public:
-	enum class ProcessResult {
+	enum class ProcessResult : uint16_t {
 		Ok = 0,
 		Synchronized = 1,
 		HeaderFound = 2,
@@ -20,7 +20,7 @@ public:
 		SyncError = 0x8003
 	};
 
-	enum class PacketState {
+	enum class PacketState : uint16_t {
 		Ready,
 		Receiving,
 		Aborted, 
