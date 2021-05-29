@@ -1,7 +1,7 @@
+#ifdef WIN32
 #include "MessagePrinter.h"
 #include <iomanip>
 #include <stdio.h>
-#include <io.h>
 #include <iostream>
 
 using namespace std;
@@ -51,3 +51,4 @@ void MessagePrinter::PrintBindFeatureArray(ostream& stream,struct EvoArray<BindF
 	}
 	stream << "]";
 }
+#endif

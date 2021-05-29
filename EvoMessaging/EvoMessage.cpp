@@ -156,10 +156,10 @@ bool EvoMessage::ToEvoString(char* buffer) {
 		length += sprintf(buffer + length, "%03X ", *param1);
 	else length += sprintf(buffer + length, "--- ");
 
-	length += PrintAddress(&address0, header.HasAddress0, buffer+length);
-	length += PrintAddress(&address1, header.HasAddress1, buffer+length);
-	length += PrintAddress(&address2, header.HasAddress2, buffer+length);
-	length += sprintf(buffer + length, "%04X %03d ", opCode, payloadLength);
+	length += PrintAddress(address0, header->HasAddress0(), buffer+length);
+	length += PrintAddress(address1, header->HasAddress1(), buffer+length);
+	length += PrintAddress(address2, header->HasAddress2(), buffer+length);
+	length += sprintf(buffer + length, "%04X %03d ", *opCode, *payloadLength);
 	
 	for (int i = 0; i < *payloadLength; i++) {
 		length += sprintf(buffer + length, "%02X", payload[i]);

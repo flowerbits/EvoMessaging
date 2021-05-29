@@ -1,5 +1,5 @@
 #pragma once
-
+#ifdef WIN32
 #include <sstream>
 #include "EvoTypes.h"
 
@@ -15,3 +15,4 @@ public:
 	static void PrintZoneTemperatureArray(std::ostream& stream, struct EvoArray<ZoneTemperature>* evoArray);
 };
 
+#endif
