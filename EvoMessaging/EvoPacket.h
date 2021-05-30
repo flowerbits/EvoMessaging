@@ -37,7 +37,7 @@ public:
 	void SetState(PacketState newState);
 	void Reset();
 
-private:
+public:
 	uint8_t dataBuffer[MAX_PACKET_SIZE] = {};
 	unsigned int dataSize;
 	uint32_t syncBuffer = 0;

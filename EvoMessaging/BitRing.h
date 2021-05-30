@@ -29,6 +29,14 @@ public:
         OpenBytes((uint8_t*)malloc(maxSize), maxSize);
     }
 
+    void OpenData(uint8_t* buffer, int dataSize)
+    {
+        bufferSize = dataSize * 8;
+        writePosition = bufferSize - 1;
+        readPosition = 0;
+        data = buffer;
+    }
+
     void OpenBytes(uint8_t* buffer, int maxSize)
     {
         bufferSize = maxSize * 8;
@@ -77,6 +85,28 @@ public:
         writePosition %= bufferSize;
     }
 
+    int Peek(int bits) {
+        int dat = 0;
+        int end = readPosition + bits;
+        int remainder = end - bufferSize;
+
+        if (remainder > 0) {
+
+            for (int i = readPosition; i < bufferSize; i++) {
+                dat = dat * 2 + GetBit(data[i / 8], i % 8);
+            }
+
+            end = remainder;
+            readPosition = 0;
+            bits -= remainder;
+        }
+
+        for (int i = readPosition; i < end; i++) {
+            dat = dat * 2 + GetBit(data[i / 8], i % 8);
+        }
+
+        return dat;
+    }
     /// <summary>
     /// Reads a number of bits from the ring buffer
     /// </summary>
