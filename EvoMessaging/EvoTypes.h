@@ -121,6 +121,18 @@ struct  EvoAddress {
 	{
 		return (data[0] << 16 | data[1] << 8 | data[2]) & 0x03FFFF;
 	}
+
+	void operator=(const EvoAddress&value)
+	{
+	  data[0] = value.data[0];
+	  data[1] = value.data[1];
+	  data[2] = value.data[2];
+	}
+
+	bool operator==(const EvoAddress &value)
+  {
+	  return data[0] == value.data[0] && data[1] == value.data[1] && data[2] == value.data[2];
+  }
 };
 
 struct EvoHeaderByte {
@@ -179,7 +191,7 @@ struct OperationCode {
 
 	inline uint16_t GetValue()
 	{
-		return ((data[0] & 0xFF) << 8) | data[1] & 0xFF;
+		return ((data[0] & 0xFF) << 8) | (data[1] & 0xFF);
 	}
 
 	inline void SetValue(uint16_t shortValue)
@@ -191,6 +203,10 @@ struct OperationCode {
 	{
 		uint16_t shortValue = (uint16_t)value;
 		SetValue(shortValue);
+	}
+	inline bool Equals(Operations value)
+	{
+	  return ((uint16_t)value) == GetValue();
 	}
 };
 
@@ -228,7 +244,7 @@ struct EvoTemperature
 
 	inline bool IsValid()
 	{
-		return Value() != 0xFF31 && Value() != 0xFF7E && Value() != 0xFFF7;
+		return (Value() != 0xFF31) && (Value() != 0xFF7E) && (Value() != 0xFFF7);
 	}
 
 	/// <summary>
@@ -541,11 +557,12 @@ struct ActuatorCycleResponse
 struct ActuatorState {
 	uint8_t data[3];
 
-	inline uint8_t SetPadding(uint8_t value)
+	inline void SetPadding(uint8_t value)
 	{
 		data[0] = value;
 	}
-	inline uint8_t SetFlags(uint8_t value)
+
+	inline void SetFlags(uint8_t value)
 	{
 		data[2] = value;
 	}

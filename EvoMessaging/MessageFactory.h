@@ -14,4 +14,6 @@ public:
 	static EvoMessage* AdvertiseRelayFailsafe(EvoAddress sourceAddress, uint8_t zoneIndex, bool enabled);
 	static EvoMessage* AdvertiseRelayDemand(EvoAddress sourceAddress, uint8_t zoneIndex, double percentage);
 	static EvoMessage* RequestActuatorCycle(EvoAddress sourceAddress, EvoAddress destinationAddress, uint8_t zoneIndex);
+	static EvoMessage* GenericReply(EvoAddress sourceAddress, EvoAddress destinationAddress, Operations opcode);
+	static EvoMessage* ConfirmBinding(EvoAddress sourceAddress, EvoAddress destinationAddress, uint8_t zoneIndex, uint16_t confirmOperation);
 };

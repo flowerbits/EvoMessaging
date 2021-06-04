@@ -1,6 +1,20 @@
 #include "MessageFactory.h"
 #include "EvoMessage.h"
 
+EvoMessage* MessageFactory::GenericReply(EvoAddress sourceAddress, EvoAddress destinationAddress, Operations opcode)
+{
+  EvoHeaderByte header;
+  header.SetAddressFlags(true, true, false);
+  header.SetParameterFlags(false, false);
+  header.SetMessageType(MessageType::I);
+  EvoMessage* retVal = new EvoMessage(header);
+  *retVal->address0 = sourceAddress;
+  *retVal->address1 = destinationAddress;
+  retVal->opCode->SetValue(opcode);
+  return retVal;
+}
+
+
 EvoMessage* MessageFactory::GenericRequest(EvoAddress sourceAddress, EvoAddress destinationAddress, Operations opcode)
 {
 	EvoHeaderByte header;
@@ -102,6 +116,22 @@ EvoMessage* MessageFactory::RequestActuatorCycle(EvoAddress sourceAddress, EvoAd
 
 	retVal->GenerateChecksum();
 	return retVal;
+}
+
+
+EvoMessage* MessageFactory::ConfirmBinding(EvoAddress sourceAddress, EvoAddress destinationAddress, uint8_t zoneIndex, uint16_t confirmOperation)
+{
+  EvoMessage* retVal = GenericReply(sourceAddress, destinationAddress, Operations::RfBind);
+  *retVal->payloadLength = 1 * sizeof(BindFeature);
+  EvoArray<BindFeature> features = EvoArray<BindFeature>(retVal->payload, *retVal->payloadLength);
+
+  BindFeature* toSet = (features.Values());
+  *(toSet->Address()) = sourceAddress;
+  toSet->OpCode()->SetValue(confirmOperation);
+  toSet->zoneData = zoneIndex;
+
+  retVal->GenerateChecksum();
+  return retVal;
 }
 
 EvoMessage* MessageFactory::AdvertiseBinding(EvoAddress sourceAddress, uint8_t zoneIndex, uint16_t supportedOperations[], uint8_t featureCount)
