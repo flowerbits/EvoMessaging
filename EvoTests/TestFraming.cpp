@@ -37,17 +37,6 @@ TEST(FramingTests, UnFrameMessage) {
 TEST(FramingTests, SyncByte) {
     //This test will simulate the data as seen by the receiving radio by matching the sync bits and then parsing the packet.
 
-    BitRing br;
-    br.OpenBytes(framedSpiSample, sizeof(framedSpiSample));
-    while (br.Peek(8) != 0xC0)
-        br.Read(1);
-    ASSERT_EQ(br.Read(8), 0xC0);
-    ASSERT_EQ(br.Read(8), 0x16);
-    ASSERT_EQ(br.Read(8), 0x65);
-    ASSERT_EQ(br.Read(8), 0x55);
-
-    //Now read the data out as the radio would.
-    while (br.GetBitCount() >= 8)
-        printf("%02x", br.Read(8));
+  
 
 }
